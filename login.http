@@ -1,0 +1,33 @@
+# Variables
+@baseUrl = http://localhost:3000
+@feature = auth
+@id = 61343bf1fd69b0002fed3cee
+
+### @name localhost
+GET {{baseUrl}}
+
+### @name register
+POST {{baseUrl}}/api/{{feature}}/register
+Content-Type: application/json
+
+{
+    "username": "ntdat104",
+    "password": "abc123123123",
+    "name": "Tien Dat"
+}
+
+### @name login
+POST {{baseUrl}}/api/{{feature}}/login
+Content-Type: application/json
+
+{
+    "username": "ntdat104",
+    "password": "abc123123123"
+}
+
+### @name test
+GET {{baseUrl}}/api/{{feature}}/test
+
+###
+GET {{baseUrl}}/api/post
+Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MTVkMTdkMzZhY2YyNDc5NDAzZTdjOTMiLCJpYXQiOjE2MzM0OTI4NTcsImV4cCI6MTYzMzQ5Mjg3Mn0.c-0bYzZt0FG0OmVSxmOV7DahKJnGoA6QJiLWa8AJToBIrC-c-JNqAdERsTt-zQKMIk2-zdzXRN8adprTQzVRcg

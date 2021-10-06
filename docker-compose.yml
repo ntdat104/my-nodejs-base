@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  node-app:
+    container_name: server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - mongodb
+    links:
+      - mongodb
+    ports:
+      - 3000:${PORT}
+    volumes:
+      - .:/node-app
+    environment:
+      MESSAGE: "server is running"
+    networks:
+      - node-network
+
+  mongodb:
+    container_name: mongodb
+    image: mongo:4.2.1-bionic
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - db-data:/data/db
+    networks:
+      - node-network
+
+volumes:
+  db-data:
+
+networks:
+  node-network:
+    driver: bridge
