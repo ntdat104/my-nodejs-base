@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const User = require("../models/user.model");
 
 class UserService {
   async findAll() {
@@ -12,6 +12,10 @@ class UserService {
 
   async findOneByUsername(username) {
     return User.findOne({ username });
+  }
+
+  async findOneByRefreshToken(refreshToken) {
+    return User.findOne({ refreshToken });
   }
 
   async findOneById(id) {

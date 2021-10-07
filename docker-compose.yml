@@ -17,6 +17,7 @@ services:
       - .:/node-app
     environment:
       MESSAGE: "server is running"
+      MONGODB_URL: mongodb://mongodb:27017/node-app
     networks:
       - node-network
 

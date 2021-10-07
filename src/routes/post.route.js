@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const httpStatus = require("http-status");
 const jwt = require("jsonwebtoken");
-const { configs } = require("../configs");
+const config = require("../configs/config");
 
 router.get("/", (req, res) => {
   const authHeader = req.header("Authorization");
@@ -13,7 +13,7 @@ router.get("/", (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(token, configs.jwt_secret);
+    const decoded = jwt.verify(token, config.jwt_secret);
     return res.status(httpStatus.OK).json({ success: true, userId: decoded.userId });
   } catch (e) {
     return res.status(httpStatus.FORBIDDEN).json({ success: false, message: e.name });

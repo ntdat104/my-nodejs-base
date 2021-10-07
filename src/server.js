@@ -27,10 +27,11 @@ app.use(cors());
 app.options("*", cors());
 
 // configs
-const { configs } = require("./configs");
+const config = require("./configs/config");
 
 // Routes
-const { authRoute, postRoute } = require("./routes");
+const authRoute = require("./routes/auth.route");
+const postRoute = require("./routes/post.route");
 
 app.get("/", (_, res) => {
   res.send("Hello World");
@@ -39,7 +40,12 @@ app.get("/", (_, res) => {
 app.use("/api/auth", authRoute);
 app.use("/api/post", postRoute);
 
-mongoose.connect(configs.mongodb_url).then(() => {
-  console.log("Connected to MongoDB");
-  app.listen(configs.port, () => console.log(`Server is running at http://localhost:${configs.port}`));
-});
+mongoose
+  .connect(config.mongodb_url)
+  .then(() => {
+    console.log("Connected to DB 🍕");
+    app.listen(config.port, () => console.log(`Server is running at: http://localhost:${config.port} 🍔`));
+  })
+  .catch((error) => {
+    console.log("error", error);
+  });

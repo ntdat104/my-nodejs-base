@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
+    "database": "docker run -it --rm -v db-data:/data/db -p 27017:27017 --name mongodb mongo:4.2.1-bionic",
     "fwrite": "prettier --config .prettierrc --write src",
     "lint": "eslint -c .eslintrc --ext .js,.json src --fix",
     "docker": "docker-compose up"
