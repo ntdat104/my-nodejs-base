@@ -1,34 +1,36 @@
-const User = require("../models/user.model");
+const userModel = require("../models/user.model");
 
 class UserService {
   async findAll() {
-    return User.find();
+    return await userModel.find();
   }
 
   async create(user) {
-    const newUser = new User(user);
-    return newUser.save();
+    const newUser = new userModel(user);
+    return await newUser.save();
   }
 
   async findOneByUsername(username) {
-    return User.findOne({ username });
+    return await userModel.findOne({ username });
   }
 
   async findOneByRefreshToken(refreshToken) {
-    return User.findOne({ refreshToken });
+    return await userModel.findOne({ refresh_token: refreshToken });
   }
 
   async findOneById(id) {
-    return User.findOne({ _id: id });
+    return await userModel.findOne({ _id: id });
   }
 
   async delete(id) {
-    return User.findByIdAndRemove(id);
+    return await userModel.findByIdAndRemove(id);
   }
 
   async update(id, user) {
-    return User.findByIdAndUpdate(id, user, { new: true });
+    return await userModel.findByIdAndUpdate(id, user, { new: true });
   }
 }
 
-module.exports = new UserService();
+const userService = new UserService();
+
+module.exports = userService;

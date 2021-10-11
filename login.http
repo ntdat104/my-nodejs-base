@@ -11,8 +11,8 @@ POST {{baseUrl}}/api/{{feature}}/register
 Content-Type: application/json
 
 {
-    "username": "ntdat104111",
-    "password": "abc123123123",
+    "username": "ntdat104",
+    "password": "abc123123",
     "name": "Tien Dat"
 }
 
@@ -21,14 +21,14 @@ POST {{baseUrl}}/api/{{feature}}/login
 Content-Type: application/json
 
 {
-    "username": "ntdat104111",
-    "password": "abc123123123"
+    "username": "ntdat104",
+    "password": "abc123123"
 }
 
 ###
-GET {{baseUrl}}/api/{{feature}}/token
-RefreshToken: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MTVmMjUzNDM2NWYxZWMwZmY2ZWI2OTciLCJpYXQiOjE2MzM2MjU0MjcsImV4cCI6MTY2NTE4MzAyN30.RYQtdZX_zl2FnM-bpuCQMd4gbg-Q8wdwXRl7cKY3e_KgQITZ3WpKUe1142twl2fwwCGNVNOLB3hJ5A7SpmvGWw
+GET {{baseUrl}}/api/post
+Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MTY0M2MyMDZjMDZmYjkwZmE4ZDk3OGIiLCJuYW1lIjoiVGllbiBEYXQiLCJpYXQiOjE2MzM5NTkzNTYsImV4cCI6MTYzMzk1OTM4Nn0.yYENtkr8zO0baMW3cW2TiqLv2ATjVwCltcImWKGpuoL89kaYncUgm6AslXghxp3DhHuLojiqEdKK_c0OOndIEg
 
 ###
-GET {{baseUrl}}/api/post
-Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MTVmMjUzNDM2NWYxZWMwZmY2ZWI2OTciLCJpYXQiOjE2MzM2MjU0ODksImV4cCI6MTYzMzYyNTUwNH0.CNfrgIS008Ia_4R4B_sojMWLU5Sz3riB9hAOe_E2E2w4BQPW--JCVaP0HTJqNSdbI-rRsfRrgNK4oXBLpU-YKg
+GET {{baseUrl}}/api/{{feature}}/token
+Refreshtoken: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MTY0M2MyMDZjMDZmYjkwZmE4ZDk3OGIiLCJuYW1lIjoiVGllbiBEYXQiLCJpYXQiOjE2MzM5NTkyNTksImV4cCI6MTY2NTUxNjg1OX0.H1KdN43YErWugtPgmRwDO7gVxINXpj-mBUMezS2DVs_u3OGG-9_HPtpZkCYMFqPzmHfCzMmBMjBKGE0RXOPfsQ

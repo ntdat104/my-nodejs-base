@@ -4,8 +4,16 @@ const xss = require("xss-clean");
 const compression = require("compression");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const ENV = require("./constants/env");
 
 const app = express();
+
+// configs
+const corsConfig = require("./configs/cors.config");
+
+// Routes
+const authRoute = require("./routes/auth.route");
+const postRoute = require("./routes/post.route");
 
 // set security HTTP headers
 app.use(helmet());
@@ -23,28 +31,24 @@ app.use(xss());
 app.use(compression());
 
 // enable cors
-app.use(cors());
+app.use(cors(corsConfig));
 app.options("*", cors());
-
-// configs
-const config = require("./configs/config");
-
-// Routes
-const authRoute = require("./routes/auth.route");
-const postRoute = require("./routes/post.route");
 
 app.get("/", (_, res) => {
   res.send("Hello World");
 });
 
+// middleware
 app.use("/api/auth", authRoute);
 app.use("/api/post", postRoute);
 
+console.log(ENV.MONGODB_URL);
+
 mongoose
-  .connect(config.mongodb_url)
+  .connect(ENV.MONGODB_URL)
   .then(() => {
     console.log("Connected to DB 🍕");
-    app.listen(config.port, () => console.log(`Server is running at: http://localhost:${config.port} 🍔`));
+    app.listen(ENV.PORT, () => console.log(`Server is running at: http://localhost:${ENV.PORT} 🍔`));
   })
   .catch((error) => {
     console.log("error", error);

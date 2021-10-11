@@ -14,16 +14,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  refreshToken: {
+  refresh_token: {
     type: String,
     default: null,
   },
-  createdAt: {
+  created_at: {
     type: Date,
     default: Date.now,
   },
 });
 
-const User = mongoose.model("users", userSchema);
+const userModel = mongoose.model("user", userSchema, "users");
 
-module.exports = User;
+module.exports = userModel;

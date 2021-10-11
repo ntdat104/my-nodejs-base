@@ -1,0 +1,21 @@
+const STATUS = {
+  // 2xx Successful
+  OK: 200,
+  CREATED: 201,
+  ACCEPTED: 202,
+
+  // 4xx Client Error
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  PAYMENT_REQUIRED: 402,
+  FORBIDDEN: 402,
+  NOT_FOUND: 404,
+  METHOD_NOT_ALLOWED: 405,
+
+  // 5xx Server Error
+  INTERNAL_SERVER_ERROR: 500,
+  NOT_IMPLEMENTED: 501,
+  BAD_GATEWAY: 502,
+};
+
+module.exports = STATUS;

@@ -1,22 +1,26 @@
 const express = require("express");
 const router = express.Router();
-const httpStatus = require("http-status");
-const jwt = require("jsonwebtoken");
-const config = require("../configs/config");
+const STATUS = require("../constants/status");
+const jwtService = require("../services/jwt.service");
 
 router.get("/", (req, res) => {
   const authHeader = req.header("Authorization");
   const token = authHeader && authHeader.split(" ")[1];
 
+  // Check for existing token
   if (!token) {
-    return res.status(httpStatus.UNAUTHORIZED).json({ success: false });
+    return res
+      .status(STATUS.UNAUTHORIZED)
+      .json({ code: STATUS.UNAUTHORIZED, success: false, token: "token is required" });
   }
 
   try {
-    const decoded = jwt.verify(token, config.jwt_secret);
-    return res.status(httpStatus.OK).json({ success: true, userId: decoded.userId });
+    const decoded = jwtService.verify(token);
+    return res
+      .status(STATUS.OK)
+      .json({ code: STATUS.OK, success: true, user: { id: decoded.userId, name: decoded.name } });
   } catch (e) {
-    return res.status(httpStatus.FORBIDDEN).json({ success: false, message: e.name });
+    return res.status(STATUS.FORBIDDEN).json({ code: STATUS.FORBIDDEN, success: false, message: e.name });
   }
 });
 

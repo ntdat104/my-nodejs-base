@@ -1,97 +1,108 @@
 const userService = require("../services/user.service");
-const httpStatus = require("http-status");
-const jwt = require("jsonwebtoken");
-const config = require("../configs/config");
-const bcrypt = require("bcrypt");
+const STATUS = require("../constants/status");
+const bcryptService = require("../services/bcrypt.service");
+const jwtService = require("../services/jwt.service");
 
-const register = async (req, res) => {
-  const { username, password, name } = req.body;
-  try {
-    let user = await userService.findOneByUsername(username);
+class AuthController {
+  register = async (req, res) => {
+    const { username, password, name } = req.body;
+    try {
+      const user = await userService.findOneByUsername(username);
 
-    // Check user has already taken
-    if (user) {
-      return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: "User has already taken!" });
+      // Check user has already taken
+      if (user) {
+        return res
+          .status(STATUS.BAD_REQUEST)
+          .json({ code: STATUS.BAD_REQUEST, success: false, message: "User has already taken!" });
+      }
+
+      // Hash password & stored database
+      const passwordHashed = await bcryptService.hash(password);
+      const newUser = await userService.create({ username, hash: passwordHashed, name });
+
+      // Generate refresh_token
+      const refreshToken = jwtService.signRefreshToken({ userId: newUser._id, name: newUser.name });
+
+      // Update user refresh_token
+      const userUpdated = await userService.update(newUser._id, { refresh_token: refreshToken });
+
+      return res.status(STATUS.CREATED).json({
+        code: STATUS.CREATED,
+        success: true,
+        message: "User is created",
+        user: { id: userUpdated._id, name: userUpdated.name },
+      });
+    } catch (e) {
+      return res
+        .status(STATUS.INTERNAL_SERVER_ERROR)
+        .json({ code: STATUS.INTERNAL_SERVER_ERROR, success: false, message: "INTERNAL SERVER ERROR" });
+    }
+  };
+
+  login = async (req, res) => {
+    const { username, password } = req.body;
+    const user = await userService.findOneByUsername(username);
+
+    // Check for existing user
+    if (!user) {
+      return res
+        .status(STATUS.UNAUTHORIZED)
+        .json({ code: STATUS.UNAUTHORIZED, success: false, message: "username is incorrect" });
     }
 
-    // Hash password & stored database
-    const hash = await bcrypt.hash(password, 10);
-    const newUser = await userService.create({ username, hash, name });
+    // Check password
+    const isMatch = await bcryptService.compare(password, user.hash);
+    if (!isMatch) {
+      return res
+        .status(STATUS.UNAUTHORIZED)
+        .json({ code: STATUS.UNAUTHORIZED, success: false, message: "password is incorrect" });
+    }
 
-    // Get refreshToken
-    const refreshToken = jwt.sign({ userId: newUser._id }, config.jwt_secret, {
-      algorithm: "HS512",
-      expiresIn: "1y",
+    // Generate access_token
+    const accessToken = jwtService.signAccessToken({ userId: user._id, name: user.name });
+
+    return res.status(STATUS.OK).json({
+      code: STATUS.OK,
+      success: true,
+      message: "Login successfully!",
+      accessToken,
+      refreshToken: user.refresh_token,
     });
+  };
 
-    // update refreshToken
-    const updateUser = await userService.update(newUser._id, { refreshToken });
+  token = async (req, res) => {
+    const refreshTokenHeader = req.header("Refreshtoken");
+    const refreshToken = refreshTokenHeader && refreshTokenHeader.split(" ")[1];
 
-    return res.status(httpStatus.CREATED).json({ success: true, message: "User is created", data: updateUser });
-  } catch (e) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Interal server error" });
-  }
-};
+    // Check for existing refresh_token
+    if (!refreshToken) {
+      return res.status(STATUS.FORBIDDEN).json({ code: STATUS.FORBIDDEN, success: false });
+    }
 
-const login = async (req, res) => {
-  const { username, password } = req.body;
-  const user = await userService.findOneByUsername(username);
+    const user = await userService.findOneByRefreshToken(refreshToken);
 
-  // check for existing user
-  if (!user) {
-    return res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Username is incorrect" });
-  }
+    // Check for existing user
+    if (!user) {
+      return res
+        .status(STATUS.UNAUTHORIZED)
+        .json({ code: STATUS.UNAUTHORIZED, success: false, message: "Refreshtoken is incorrect" });
+    }
 
-  // check password
-  const passwordValid = await bcrypt.compare(password, user.hash);
+    // Generate new refresh_token
+    const newRefreshToken = jwtService.signRefreshToken({ userId: user._id, name: user.name });
 
-  if (!passwordValid) {
-    return res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Password is incorrect" });
-  }
+    // Update refresh_token
+    const userUpdated = await userService.update(user._id, { refresh_token: newRefreshToken });
 
-  // Get accessToken
-  const accessToken = jwt.sign({ userId: user._id }, config.jwt_secret, { algorithm: "HS512", expiresIn: "15s" });
+    // Generate access_token
+    const accessToken = jwtService.signAccessToken({ userId: userUpdated._id, name: userUpdated.name });
 
-  return res
-    .status(httpStatus.OK)
-    .json({ success: true, message: "Login success!", accessToken, refreshToken: user.refreshToken });
-};
+    return res
+      .status(STATUS.OK)
+      .json({ code: STATUS.OK, success: true, user: { id: userUpdated._id, name: userUpdated.name }, accessToken });
+  };
+}
 
-const token = async (req, res) => {
-  const refreshTokenHeader = req.header("RefreshToken");
-  const refreshToken = refreshTokenHeader && refreshTokenHeader.split(" ")[1];
+const authController = new AuthController();
 
-  if (!refreshToken) {
-    return res.status(httpStatus.FORBIDDEN).json({ success: false });
-  }
-
-  const user = await userService.findOneByRefreshToken(refreshToken);
-
-  // check for existing user
-  if (!user) {
-    return res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "refreshToken is incorrect" });
-  }
-
-  // Get refreshToken
-  const newRefreshToken = jwt.sign({ userId: user._id }, config.jwt_secret, {
-    algorithm: "HS512",
-    expiresIn: "1y",
-  });
-
-  // update refreshToken
-  const updateUser = await userService.update(user._id, { refreshToken: newRefreshToken });
-
-  // Get accessToken
-  const accessToken = jwt.sign({ userId: updateUser._id }, config.jwt_secret, {
-    algorithm: "HS512",
-    expiresIn: "15s",
-  });
-
-  return res.status(httpStatus.OK).json({ success: true, userId: updateUser._id, accessToken });
-};
-
-module.exports = {
-  register,
-  login,
-  token,
-};
+module.exports = authController;
