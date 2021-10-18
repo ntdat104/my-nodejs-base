@@ -42,8 +42,6 @@ app.get("/", (_, res) => {
 app.use("/api/auth", authRoute);
 app.use("/api/post", postRoute);
 
-console.log(ENV.MONGODB_URL);
-
 mongoose
   .connect(ENV.MONGODB_URL)
   .then(() => {

@@ -58,15 +58,21 @@ class AuthController {
         .json({ code: STATUS.UNAUTHORIZED, success: false, message: "password is incorrect" });
     }
 
+    // Generate new refresh_token
+    const refreshToken = jwtService.signRefreshToken({ userId: user._id, name: user.name });
+
+    // Update refresh_token to user
+    const updateUser = await userService.update(user.id, { refresh_token: refreshToken });
+
     // Generate access_token
-    const accessToken = jwtService.signAccessToken({ userId: user._id, name: user.name });
+    const accessToken = jwtService.signAccessToken({ userId: updateUser._id, name: updateUser.name });
 
     return res.status(STATUS.OK).json({
       code: STATUS.OK,
       success: true,
       message: "Login successfully!",
       accessToken,
-      refreshToken: user.refresh_token,
+      refreshToken: updateUser.refresh_token,
     });
   };
 
@@ -77,6 +83,13 @@ class AuthController {
     // Check for existing refresh_token
     if (!refreshToken) {
       return res.status(STATUS.FORBIDDEN).json({ code: STATUS.FORBIDDEN, success: false });
+    }
+
+    // Check expiration refresh_token
+    try {
+      const decoded = jwtService.verify(refreshToken);
+    } catch (e) {
+      return res.status(STATUS.FORBIDDEN).json({ code: STATUS.FORBIDDEN, success: false, message: e.name });
     }
 
     const user = await userService.findOneByRefreshToken(refreshToken);
