@@ -9,7 +9,7 @@ const ENV = require("./constants/env");
 const app = express();
 
 // configs
-const corsConfig = require("./configs/cors.config");
+const corsConfig = require("./configs/cors");
 
 // Routes
 const authRoute = require("./routes/auth.route");
